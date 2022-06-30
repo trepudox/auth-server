@@ -8,10 +8,11 @@ application:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/db_rotten_itaumatoes?createDatabaseIfNotExist=true&connectionTimeZone=UTC"
+    url: "jdbc:mysql://localhost:3306/db_rotten_itaumatoes?createDatabaseIfNotExist=false&connectionTimeZone=UTC"
     username: "root"
     password: "root"
     driver-class-name: "com.mysql.cj.jdbc.Driver"
+    database-platform: "org.hibernate.dialect.MySQL8Dialect"
   jpa:
     show-sql: true
     hibernate:

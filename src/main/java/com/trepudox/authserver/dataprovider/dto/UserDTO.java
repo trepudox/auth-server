@@ -15,6 +15,7 @@ public class UserDTO {
     private String username;
     private EnProfile profile;
     private Long score;
+    private LocalDateTime updateDateTime;
     private LocalDateTime creationDateTime;
 
 }

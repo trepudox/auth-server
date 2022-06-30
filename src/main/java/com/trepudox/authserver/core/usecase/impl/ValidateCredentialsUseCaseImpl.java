@@ -1,5 +1,6 @@
 package com.trepudox.authserver.core.usecase.impl;
 
+import com.trepudox.authserver.core.exception.APIException;
 import com.trepudox.authserver.core.usecase.IUpdateLoginAttemptsUseCase;
 import com.trepudox.authserver.core.usecase.IValidateCredentialsUseCase;
 import com.trepudox.authserver.core.usecase.IVerifyCurrentLoginAttemptsUseCase;
@@ -20,7 +21,8 @@ public class ValidateCredentialsUseCaseImpl implements IValidateCredentialsUseCa
     private final IVerifyCurrentLoginAttemptsUseCase verifyCurrentLoginAttemptsUseCase;
 
     public JwtResponseDTO validate(String username, String sentEncodedPassword) {
-        UserModel user = userRepository.findById(username).orElseThrow();
+        UserModel user = userRepository.findById(username)
+                .orElseThrow(() -> new APIException("Login incorreto", "Usuário não encontrado na base de dados", 403));
 
         verifyCurrentLoginAttemptsUseCase.verify(user);
 

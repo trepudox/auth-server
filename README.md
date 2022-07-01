@@ -6,9 +6,9 @@ O **auth-server** tem como funções principais o cadastro, a autenticação e a
 
 A aplicação dispõe de um Swagger, que pode ser acessado através do endereço: http://localhost:8081/swagger-ui/
 
-Além do Swagger, temos uma pasta no drive com a [collection do Postman](https://drive.google.com/drive/folders/1GNoDN1rn2h7-BfvoyHFqLzxkWXj7_jbW) e alguns outros recursos, para testar o auth-server e o rotten-itaumatoes.  
+Além do Swagger, temos uma pasta no drive com a [collection do Postman](https://drive.google.com/file/d/16KqEBpyp60SBjGm1w_oGYgsHSj0kQ3Iv/view?usp=sharing) e alguns outros recursos, para testar o auth-server e o rotten-itaumatoes.  
 
-Mas lembrando, ao realizar o cadastro diretamente pelo auth-server, a senha não será criptografada antes da persistência no banco de dados, então o login através do rotten-itaumatoes usando esse usuário não funcionará.
+Mas lembrando, ao realizar o cadastro diretamente pelo auth-server, a senha **não será** criptografada antes da persistência no banco de dados, quem possui a resoponsabilidade de criptografar a senha é o serviço rotten-itaumatoes, então o login através do rotten-itaumatoes usando esse usuário não funcionará.
 
 ## Como rodar o auth-server
 
@@ -97,3 +97,57 @@ docker exec -it <containerID> bash
 ``
 
 Agora, no console do container, executando o comando `redis-cli` estaremos entrando no console do Redis.  
+
+## Tentativas de login no Redis
+
+### O que são as tentativas de login?
+
+Aqui no auth-server, na funcionalidade de login, implementamos uma verificação de tentativas de login.  
+
+Então quando um usuário erra a senha do seu login, ele possui uma quantidade máxima de tentativas, por padrão são 3.
+
+Foi criada uma entidade, a **Login Attempts**, que é responsável por armazenar as tentativas de cada usuário, que tem um Time To Live no Redis de 300 segundos.  
+
+### Como consultá-las
+
+Ao realizar um login com a senha errada pelo rotten-itaumatoes temos a seguinte resposta:  
+
+<p align="center"><img src="img/wrong-password.png" alt="Wrong password login"></p>
+
+Significa que já temos esse registro no Redis e podemos consultá-lo.  
+
+Entrando no console do Redis, podemos ver todas as chaves que temos armazenadas no momento, com o comando `KEYS *`.  
+
+No caso do login acima, temos as seguintes chaves:  
+
+<p align="center"><img src="img/all-keys.png" alt="All stored keys"></p>
+
+Onde a chave `LA` é um Set, e seu valor é o nome de cada usuário. Seus valores podem ser lidos através do comando `SMEMBERS <key>`.  
+
+<p align="center"><img src="img/LA-values.png" alt="LA values"></p>
+
+E a `LA:username` é um Hash, que pode ser lido através do comando `HGETALL <key>`. O retorno deve ser como esse:  
+
+<p align="center"><img src="img/LAusername-value.png" alt="LA:username value"></p>
+
+O que pode parecer um pouco estranho, mas ele serializa a classe Java para poder desserializar ela na aplicação quando necessário.  
+
+Então, a linha 1 indica que é uma classe, a 2 é o nome dela incluindo os pacotes desde a raíz do projeto.  
+
+As linhas 3 e 5 se referem ao nome do atributo na classe **LoginAttemptsModel**, que foi a classe que criamos.  
+
+Já a linha 4 e 6 são os valores do atributo. Linha 4 é o valor do atributo `"currentAttempt"` e linha 6 é o valor do atributo `"username"`.  
+
+E para ver o tempo de vida do registro, é só usar o comando `TTL <key>`, como no exemplo:  
+
+<p align="center"><img src="img/TTL-LAusername.png" alt="Time to Live of LA:username"></p>
+
+## Encerramento
+
+Espero que todas as dúvidas em relação ao projeto estejam sanadas, e que tenha gostado de como ele foi desenvolvido.
+
+Qualquer dúvida, sugestão ou comentário, pode entrar em contato comigo pelo meu LinkedIn ou me mandar um email, deixarei os contatos abaixo. Valeu!
+
+LinkedIn: https://www.linkedin.com/in/marcoa-queiroz/
+Emails: teoaa2@gmail.com
+marcoa.queiroz1722@gmail.com

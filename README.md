@@ -6,10 +6,13 @@ O **auth-server** tem como funções principais o cadastro, a autenticação e a
 
 A aplicação dispõe de um Swagger, que pode ser acessado através do endereço: http://localhost:8081/swagger-ui/
 
-# ATUALIZA O LINK DO DRIVE MARCO
-Além do Swagger, temos uma [collection do Postman](linkdodrive) para testar o auth-server.  
+Além do Swagger, temos uma pasta no drive com a [collection do Postman](https://drive.google.com/drive/folders/1GNoDN1rn2h7-BfvoyHFqLzxkWXj7_jbW) e alguns outros recursos, para testar o auth-server e o rotten-itaumatoes.  
+
+Mas lembrando, ao realizar o cadastro diretamente pelo auth-server, a senha não será criptografada antes da persistência no banco de dados, então o login através do rotten-itaumatoes usando esse usuário não funcionará.
 
 ## Como rodar o auth-server
+
+No ambiente local foram utilizados Java 11, e as últimas versões das imagens do MySQL e Redis no Docker.
 
 **IMPORTANTE!** 
 
